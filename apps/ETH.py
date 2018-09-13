@@ -80,3 +80,33 @@ class GetEthTradeHandler(BaseHandler):
             return self.response(code=1, msg='ERROR')
         finally:
             self.session.remove()
+
+
+class GetEthHourBanlanceHandler(BaseHandler):
+    @run_on_executor
+    def post(self):
+        try:
+            data = dict()
+            date_str = self.get_argument("date", None)
+            platform = self.get_argument("platform", 'ALL')
+
+            if not date_str:
+                return self.response(code=1, msg='arg error')
+
+            date_format = "%Y%m%d %H"
+            now = datetime.datetime.strptime(date_str, date_format)
+            next_hour = now + datetime.timedelta(hours=1)
+            if not platform == 'ALL':
+                balance = self.session.query(EthBalance).filter(EthBalance.platform == platform,
+                                                                EthBalance.time.between(now, next_hour)).order_by(EthBalance.id.asc()).first()
+                data.setdefault(platform, str(balance.balance))
+            else:
+                balance = self.session.query(EthBalance).filter(EthBalance.time.between(now, next_hour)).order_by(EthBalance.id.asc()).all()
+                for item in balance:
+                    data.setdefault(item.platform, str(item.balance))
+            return self.response(code=0, msg='success', data=data)
+
+        except Exception as e:
+            return self.response(code=1, msg='ERROR')
+        finally:
+            self.session.remove()
