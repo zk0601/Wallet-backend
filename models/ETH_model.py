@@ -27,6 +27,7 @@ class EthTrade(Base):
     from_address = Column(String(255), nullable=False)
     to_address = Column(String(255), nullable=False)
     value = Column(DECIMAL(16, 4), nullable=False)
+    trade_hash = Column(String(255), nullable=False)
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}

@@ -72,6 +72,7 @@ class GetEthTradeHandler(BaseHandler):
                 tmp['from_address'] = item.from_address
                 tmp['to_address'] = item.to_address
                 tmp['value'] = str(item.value)
+                tmp['trade_hash'] = item.trade_hash
                 data.append(tmp)
 
             return self.response(code=0, msg='success', data=data)
