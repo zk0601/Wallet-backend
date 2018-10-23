@@ -5,6 +5,10 @@ import datetime
 
 
 class GetEthBalanceHandler(BaseHandler):
+    """
+    :param date: the date of data(necessary), like '20180907'
+    :param platform: select one paltform ,like 'Okex'
+    """
     @run_on_executor
     def post(self):
         try:
@@ -45,6 +49,11 @@ class GetEthBalanceHandler(BaseHandler):
 
 
 class GetEthTradeHandler(BaseHandler):
+    """
+    :param time: the hour trades happened(necessary), like: '20180917 13'
+    :param platform: (necessary), like: 'Okex'
+    :param value_level: return the data which level over this value. like: 10
+    """
     @run_on_executor
     def post(self):
         try:
@@ -84,6 +93,10 @@ class GetEthTradeHandler(BaseHandler):
 
 
 class GetEthHourBanlanceHandler(BaseHandler):
+    """
+    :param date: the date of data(necessary), like '20180907 15'
+    :param platform: select one paltform ,like 'Okex'
+    """
     @run_on_executor
     def post(self):
         try:
