@@ -50,6 +50,50 @@ class GetEthBalanceHandler(BaseHandler):
 
 class GetEthTradeHandler(BaseHandler):
     """
+    :param time: the daily trades happened(necessary), like: '20180917'
+    :param platform: (necessary), like: 'Okex'
+    :param value_level: return the data which level over this value. like: 10
+    """
+    @run_on_executor
+    def post(self):
+        try:
+            time = self.get_argument("time", None)
+            platform = self.get_argument("platform", None)
+            value_level = self.get_argument("value_level", None)
+            if not time or not platform:
+                return self.response(code=1, msg='arg error')
+            time_format = "%Y%m%d"
+            current_day = datetime.datetime.strptime(time, time_format)
+            next_day = current_day + datetime.timedelta(days=1)
+            if not value_level:
+                trade = self.session.query(EthTrade).filter(EthTrade.platform == platform,
+                                                            EthTrade.trade_time.between(current_day, next_day)).order_by(EthTrade.id.asc()).all()
+            else:
+                trade = self.session.query(EthTrade).filter(EthTrade.platform == platform, EthTrade.value > value_level,
+                                                            EthTrade.trade_time.between(current_day,next_day)).order_by(EthTrade.id.asc()).all()
+
+            datetime_format = "%Y%m%d %H:%M:%S"
+            data = list()
+            for item in trade:
+                tmp = dict()
+                tmp['platform_address'] = item.platform_address
+                tmp['trade_time'] = item.trade_time.strftime(datetime_format)
+                tmp['from_address'] = item.from_address
+                tmp['to_address'] = item.to_address
+                tmp['value'] = str(item.value)
+                tmp['trade_hash'] = item.trade_hash
+                data.append(tmp)
+
+            return self.response(code=0, msg='success', data=data)
+
+        except Exception as e:
+            return self.response(code=1, msg='ERROR')
+        finally:
+            self.session.remove()
+
+
+class GetEthHourTradeHandler(BaseHandler):
+    """
     :param time: the hour trades happened(necessary), like: '20180917 13'
     :param platform: (necessary), like: 'Okex'
     :param value_level: return the data which level over this value. like: 10
